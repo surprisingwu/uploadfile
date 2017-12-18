@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .list {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+        
+        .item {
+            list-style: none;
+            width: 50%;
+            height: 100px;
+        }
+    </style>
+    <script>
+        const xhr = new XMLHttpRequest()
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+
+                let data = JSON.parse(xhr.responseText)
+                if (data.msg === 1) {
+                    console.log(data.result)
+                    return
+                }
+                data = data.result
+                if (!data.length) {
+                    console.log('Have no photo!')
+                    document.getElementById('photos').style.display = "none"
+                    document.getElementById('upload').style.display = 'block'
+                    return
+                }
+                renderImg(data)
+            }
+        }
+        xhr.open('GET', 'http://127.0.0.1:3000/user/photos')
+        xhr.send()
+
+        function renderImg(data) {
+            let listWrapper = document.getElementById('list')
+            let str = '';
+            data.forEach(item => {
+                let li = createLi(item.base64)
+                str += li
+            });
+            listWrapper.innerHTML = str
+        }
+
+        function createLi(path) {
+            path = 'data:image/jpg;base64,' + path
+            const ret = '<li class="item"><img src="' + path + '" style="width:100%;height:100%"/></li>'
+            return ret
+        }
+        document.getElementById('toggle').addEventListener('click', function(err) {
+            const photos = document.getElementById('photos')
+            const upload = document.getElementById('upload')
+            photos.style.display === 'none' ? photos.style.display = 'block' : photos.style.display = 'none'
+            photos.style.display === 'none' ? photos.style.display = 'block' : photos.style.display = 'none'
+        })
+    </script>
+</head>
+
+<body>
+    <div style="display: block" id="photos">
+        <h2>My photos</h2>
+        <ul class="list" id="list">
+        </ul>
+    </div>
+    <div id="upload" style="display:none">
+        <form method="post" action="http://127.0.01.1:3000/user/upload" enctype="multipart/form-data">
+            <input type="text" name="name">
+            <input type="file" name="file" id="file">
+            <input type="submit" value="upload file">
+        </form>
+    </div>
+
+    <button id="toggle">切换</button>
+</body>
+
+</html>
